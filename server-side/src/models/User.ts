@@ -1,10 +1,11 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 // Creating the interface for the user model
 export interface IUser extends Document {
   email: string;
   passwordHash: string;
   username: string;
+  _id: ObjectId;
 }
 
 // Now create the actual user schema

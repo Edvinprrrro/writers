@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import userRoutes from "./routes/userRoutes";
 import { connectDb } from "./db";
