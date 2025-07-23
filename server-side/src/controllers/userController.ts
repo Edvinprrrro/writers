@@ -1,21 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/User";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { error } from "console";
+import { ILoginData, IRegisterData } from "../types/User";
 
 const JWT_KEY = process.env.JWT_KEY;
 if (!JWT_KEY) {
   throw new Error("Missing JWT_KEY environment variable");
 }
 
-interface registerData {
-  username: string;
-  email: string;
-  password: string;
-}
-
 export const registerUser = async (
-  req: Request<{}, {}, registerData>,
+  req: Request<{}, {}, IRegisterData>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -54,13 +50,8 @@ export const registerUser = async (
   return res.status(201).json({ message: "User added succesfully" });
 };
 
-interface loginData {
-  password: string;
-  username: string;
-}
-
 export const loginUser = async (
-  req: Request<{}, {}, loginData>,
+  req: Request<{}, {}, ILoginData>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -91,4 +82,29 @@ export const loginUser = async (
   return res
     .status(200)
     .json({ message: "Succesfully signed in", token: token });
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const authorizationHeader = req.header("Authorization");
+
+  // Check if there is a header or if it's well created
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ error: "Missing or malformed Authorization header" });
+  }
+
+  const token = authorizationHeader?.split(" ")[1];
+  // Validate the JWT
+  try {
+    const decoded: JwtPayload = jwt.verify(token, JWT_KEY) as JwtPayload;
+    await User.findByIdAndDelete(decoded.id);
+    return res.status(204);
+  } catch (err) {
+    res.status(401).json({ error: `Invalid token: ${err}` });
+  }
 };

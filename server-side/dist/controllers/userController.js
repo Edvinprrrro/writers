@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUser = exports.registerUser = void 0;
+exports.deleteUser = exports.loginUser = exports.registerUser = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const User_1 = __importDefault(require("../models/User"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -67,3 +67,23 @@ const loginUser = async (req, res, next) => {
         .json({ message: "Succesfully signed in", token: token });
 };
 exports.loginUser = loginUser;
+const deleteUser = async (req, res, next) => {
+    const authorizationHeader = req.header("Authorization");
+    // Check if there is a header or if it's well created
+    if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+        return res
+            .status(401)
+            .json({ error: "Missing or malformed Authorization header" });
+    }
+    const token = authorizationHeader?.split(" ")[1];
+    // Validate the JWT
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, JWT_KEY);
+        await User_1.default.findByIdAndDelete(decoded.id);
+        return res.status(204).json({ message: "Account deleted succesfully" });
+    }
+    catch (err) {
+        res.status(401).json({ error: `Invalid token: ${err}` });
+    }
+};
+exports.deleteUser = deleteUser;
