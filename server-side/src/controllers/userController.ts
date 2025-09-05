@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/User";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { error } from "console";
+import jwt from "jsonwebtoken";
 import { ILoginData, IRegisterData } from "../types/User";
+import { HydratedDocument } from "mongoose";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 const JWT_KEY = process.env.JWT_KEY;
 if (!JWT_KEY) {
@@ -63,7 +64,7 @@ export const loginUser = async (
   }
 
   // Check if user exists by that username
-  const user: IUser | null = await User.findOne({ username: username });
+  const user: HydratedDocument<IUser> | null = await User.findOne({ username });
   if (!user) {
     return res
       .status(400)
@@ -77,7 +78,7 @@ export const loginUser = async (
   }
 
   // Sign the user in by sending the jwt token
-  const payload = { id: user._id.toString(), username: user.username };
+  const payload = { id: user.id.toString(), username: user.username };
   const token = jwt.sign(payload, JWT_KEY, { expiresIn: "2d" });
   return res
     .status(200)
@@ -85,26 +86,26 @@ export const loginUser = async (
 };
 
 export const deleteUser = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const authorizationHeader = req.header("Authorization");
-
-  // Check if there is a header or if it's well created
-  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ error: "Missing or malformed Authorization header" });
-  }
-
-  const token = authorizationHeader?.split(" ")[1];
-  // Validate the JWT
   try {
-    const decoded: JwtPayload = jwt.verify(token, JWT_KEY) as JwtPayload;
-    await User.findByIdAndDelete(decoded.id);
-    return res.status(204);
+    const user = req.user;
+
+    if (user === undefined) {
+      return res.status(401).json({ error: "Unathoriazed" });
+    }
+
+    const userId = user._id;
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // TO DO Delete all the boocks, chapters, plotpoints, characters from that user;
+    return res.status(200).json({ message: "User deleted" });
   } catch (err) {
-    res.status(401).json({ error: `Invalid token: ${err}` });
+    return res.status(401).json({ error: err });
   }
 };

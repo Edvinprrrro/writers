@@ -4,7 +4,7 @@ export interface IRegisterData {
   password: string;
 }
 
-interface ILoginData {
+export interface ILoginData {
   password: string;
   username: string;
 }
