@@ -66,7 +66,7 @@ export const updateBook = async (
   return res.status(200).location(`books/${id}`).json(book);
 };
 
-export const getAllBooks = async (
+export const getBooks = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -85,7 +85,7 @@ interface BookIdRequest extends AuthRequest {
   };
 }
 
-export const getBookById = async (
+export const getBook = async (
   req: BookIdRequest,
   res: Response,
   next: NextFunction
@@ -97,7 +97,7 @@ export const getBookById = async (
   return res.status(200).json(book);
 };
 
-export const deleteBookById = async (
+export const deleteBook = async (
   req: BookIdRequest,
   res: Response,
   next: NextFunction

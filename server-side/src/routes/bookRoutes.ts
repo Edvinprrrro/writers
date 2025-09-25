@@ -1,9 +1,9 @@
 import express from "express";
 import {
   createBook,
-  deleteBookById,
-  getAllBooks,
-  getBookById,
+  deleteBook,
+  getBook,
+  getBooks,
   updateBook,
 } from "../controllers/bookController";
 import { authJwtToken } from "../middleware/authMiddleware";
@@ -37,9 +37,9 @@ const router = express.Router();
 
 router.post("/", authJwtToken, createBook);
 router.put("/:id", authJwtToken, validateBookById, updateBook);
-router.get("/", authJwtToken, getAllBooks);
-router.get("/:id", authJwtToken, validateBookById, getBookById);
-router.delete("/:id", authJwtToken, validateBookById, deleteBookById);
+router.get("/", authJwtToken, getBooks);
+router.get("/:id", authJwtToken, validateBookById, getBook);
+router.delete("/:id", authJwtToken, validateBookById, deleteBook);
 
 // Chapter routes
 router.post(

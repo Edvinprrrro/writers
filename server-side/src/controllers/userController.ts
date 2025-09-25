@@ -5,6 +5,10 @@ import jwt from "jsonwebtoken";
 import { ILoginData, IRegisterData } from "../types/User";
 import { HydratedDocument } from "mongoose";
 import { AuthRequest } from "../middleware/authMiddleware";
+import Book from "../models/Book";
+import Chapter from "../models/Chapter";
+import Character from "../models/Character";
+import PlotPoint from "../models/PlotPoint";
 
 const JWT_KEY = process.env.JWT_KEY;
 if (!JWT_KEY) {
@@ -91,20 +95,25 @@ export const deleteUser = async (
   next: NextFunction
 ): Promise<any> => {
   try {
-    const user = req.user;
-
-    if (user === undefined) {
-      return res.status(401).json({ error: "Unathoriazed" });
-    }
-
-    const userId = user._id;
-    const deletedUser = await User.findByIdAndDelete(userId);
-    if (!deletedUser) {
+    const id = req.user!._id;
+    const user = await User.findById(id);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // TO DO Delete all the boocks, chapters, plotpoints, characters from that user;
-    return res.status(200).json({ message: "User deleted" });
+    const books = await Book.find({ author: id });
+    const bookIds = books.map((book) => book._id);
+    await Chapter.deleteMany({ book: { $in: bookIds } });
+    await Character.updateMany(
+      { books: { $in: bookIds } },
+      { $pull: { books: { $in: bookIds } } }
+    );
+    await Character.deleteMany({ books: { $size: 0 } });
+    await PlotPoint.deleteMany({ book: { $in: bookIds } });
+    await Book.deleteMany({ author: id });
+    await User.findByIdAndDelete(id);
+
+    return res.status(200).json(user);
   } catch (err) {
     return res.status(401).json({ error: err });
   }

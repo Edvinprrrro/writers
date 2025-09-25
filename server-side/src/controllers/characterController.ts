@@ -2,7 +2,6 @@ import { NextFunction, Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
 import Character from "../models/Character";
 import { ICharacterInfo } from "../types/Character";
-import { error } from "console";
 
 interface BookIdRequest extends AuthRequest {
   params: {
