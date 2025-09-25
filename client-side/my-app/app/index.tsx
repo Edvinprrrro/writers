@@ -1,26 +1,27 @@
-import { Pressable, Text, View, ScrollView } from "react-native";
+import { Pressable, View, Text, ScrollView } from "react-native";
 import { page } from "@/styles/frame";
 import { typography } from "@/styles/typography ";
-import { indexButtonsStyle } from "@/styles/indexButtons";
+import { indexStyles } from "@/styles";
 
 export default function Index() {
   return (
-    <View style={page.frame}>
+    <ScrollView style={page.frame}>
       <Text style={typography.h1}>Your Books</Text>
-      <View style={indexButtonsStyle.container}>
-        <Pressable style={indexButtonsStyle.tall}>
-          <Text style={indexButtonsStyle.text}>Continue Writing</Text>
+      <View style={indexStyles.container}>
+        <Pressable style={indexStyles.item}>
+          <Text style={indexStyles.text}>Gane of thrones</Text>
         </Pressable>
-        <Pressable style={indexButtonsStyle.normal}>
-          <Text style={indexButtonsStyle.text}>Characters</Text>
+        <Pressable style={indexStyles.item}>
+          <Text style={indexStyles.text}>Lord of the rings</Text>
         </Pressable>
-        <Pressable style={indexButtonsStyle.normal}>
-          <Text style={indexButtonsStyle.text}>Plot Points</Text>
+        <Pressable style={indexStyles.item}>
+          <Text style={indexStyles.text}>Clash of clans</Text>
         </Pressable>
-        <Pressable style={indexButtonsStyle.normal}>
-          <Text style={indexButtonsStyle.text}>Drafts</Text>
+        <Pressable style={indexStyles.item}>
+          <Text style={indexStyles.text}>Give him some milk</Text>
         </Pressable>
+        <Pressable></Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }

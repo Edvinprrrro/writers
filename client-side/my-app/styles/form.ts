@@ -11,8 +11,6 @@ export const formStyle = StyleSheet.create({
     paddingBottom: 20,
     gap: 40,
     width: "100%",
-    borderColor: "#0000000",
-    borderWidth: 1,
   },
   textAndField: {
     width: "100%",
