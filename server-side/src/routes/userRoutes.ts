@@ -4,12 +4,13 @@ import {
   loginUser,
   registerUser,
 } from "../controllers/userController";
-import { authJwtToken } from "../middleware/authMiddleware";
+import { authAccessJwtToken } from "../middleware/authAccessTokenMiddleware.ts";
+import { sendTokens } from "../middleware/sendAccessAndRefreshTokens";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.delete("/delete", authJwtToken, deleteUser);
+router.post("/register", registerUser, sendTokens);
+router.post("/login", loginUser, sendTokens);
+router.delete("/delete", authAccessJwtToken, deleteUser);
 
 export default router;

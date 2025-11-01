@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { AuthRequest } from "../middleware/authMiddleware";
+import { AuthRequest } from "../middleware/authAccessTokenMiddleware.ts";
 import PlotPoint from "../models/PlotPoint";
 import { IPlotPointInfo } from "../types/PlotPoint";
 import Book from "../models/Book";

@@ -1,32 +1,34 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/User";
-import jwt from "jsonwebtoken";
 import { ILoginData, IRegisterData } from "../types/User";
 import { HydratedDocument } from "mongoose";
-import { AuthRequest } from "../middleware/authMiddleware";
+import { AuthRequest } from "../middleware/authAccessTokenMiddleware.ts";
 import Book from "../models/Book";
 import Chapter from "../models/Chapter";
 import Character from "../models/Character";
 import PlotPoint from "../models/PlotPoint";
 
-const JWT_KEY = process.env.JWT_KEY;
-if (!JWT_KEY) {
-  throw new Error("Missing JWT_KEY environment variable");
+interface RegisterUserRequest extends AuthRequest {
+  body: IRegisterData;
 }
 
 export const registerUser = async (
-  req: Request<{}, {}, IRegisterData>,
+  req: RegisterUserRequest,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { email, username, password } = req.body;
+  const { email, username, password, repeatedPassword } = req.body;
   // Check if all the fields are sent
-  if (!email || !username || !password) {
+  if (!email || !username || !password || !repeatedPassword) {
     return res
       .status(400)
       .json({ error: "Missing fields to register a valid user" });
   }
+
+  // Check if the repeated password matches the password
+  if (password !== repeatedPassword)
+    return res.status(400).json({ error: "Passwords do not match" });
 
   // Check if the email is already being used
   const existingEmail = await User.findOne({ email: email });
@@ -52,11 +54,16 @@ export const registerUser = async (
 
   await user.save();
 
-  return res.status(201).json({ message: "User added succesfully" });
+  req.user = user;
+  next();
 };
 
+interface LoginUserRequest extends AuthRequest {
+  body: ILoginData;
+}
+
 export const loginUser = async (
-  req: Request<{}, {}, ILoginData>,
+  req: LoginUserRequest,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -81,12 +88,8 @@ export const loginUser = async (
     return res.status(400).json({ error: "Incorrect paswword" });
   }
 
-  // Sign the user in by sending the jwt token
-  const payload = { id: user.id.toString(), username: user.username };
-  const token = jwt.sign(payload, JWT_KEY, { expiresIn: "2d" });
-  return res
-    .status(200)
-    .json({ message: "Succesfully signed in", token: token });
+  req.user = user;
+  next();
 };
 
 export const deleteUser = async (

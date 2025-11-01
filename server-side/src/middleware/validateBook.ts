@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "./authMiddleware";
+import { AuthRequest } from "./authAccessTokenMiddleware.ts";
 import Book from "../models/Book";
 
 interface BookIdRequest extends AuthRequest {

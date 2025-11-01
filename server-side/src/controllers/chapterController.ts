@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../middleware/authMiddleware";
+import { AuthRequest } from "../middleware/authAccessTokenMiddleware.ts";
 import Chapter from "../models/Chapter";
 import { IChapterInfo } from "../types/Chapter";
 

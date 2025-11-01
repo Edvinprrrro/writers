@@ -6,7 +6,7 @@ import {
   getBooks,
   updateBook,
 } from "../controllers/bookController";
-import { authJwtToken } from "../middleware/authMiddleware";
+import { authAccessJwtToken } from "../middleware/authAccessTokenMiddleware.ts";
 import {
   createChapter,
   deleteChapter,
@@ -35,40 +35,40 @@ import {
 
 const router = express.Router();
 
-router.post("/", authJwtToken, createBook);
-router.put("/:id", authJwtToken, validateBookById, updateBook);
-router.get("/", authJwtToken, getBooks);
-router.get("/:id", authJwtToken, validateBookById, getBook);
-router.delete("/:id", authJwtToken, validateBookById, deleteBook);
+router.post("/", authAccessJwtToken, createBook);
+router.put("/:id", authAccessJwtToken, validateBookById, updateBook);
+router.get("/", authAccessJwtToken, getBooks);
+router.get("/:id", authAccessJwtToken, validateBookById, getBook);
+router.delete("/:id", authAccessJwtToken, validateBookById, deleteBook);
 
 // Chapter routes
 router.post(
   "/:bookId/chapters",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   createChapter
 );
 router.get(
   "/:bookId/chapters",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getAllChapters
 );
 router.get(
   "/:bookId/chapters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getChapterById
 );
 router.put(
   "/:bookId/chapters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   updateChapter
 );
 router.delete(
   "/:bookId/chapters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   deleteChapter
 );
@@ -76,31 +76,31 @@ router.delete(
 // Character routes
 router.get(
   "/:bookId/characters",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getAllCharacters
 );
 router.get(
   "/:bookId/characters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getCharacterById
 );
 router.post(
   "/:bookId/characters",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   createCharacter
 );
 router.put(
   "/:bookId/characters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   updateCharacter
 );
 router.delete(
   "/:bookId/characters/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   deleteCharacter
 );
@@ -108,31 +108,31 @@ router.delete(
 // Plot points routes
 router.get(
   "/:bookId/plotpoints",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getPlotPoints
 );
 router.get(
   "/:bookId/plotpoints/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   getPlotPoint
 );
 router.post(
   "/:bookId/plotpoints",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   createPlotPoint
 );
 router.put(
   "/:bookId/plotpoints/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   updatePlotPoint
 );
 router.delete(
   ":bookId/plotpoints/:id",
-  authJwtToken,
+  authAccessJwtToken,
   validateBookByBookId,
   deletePlotPoint
 );

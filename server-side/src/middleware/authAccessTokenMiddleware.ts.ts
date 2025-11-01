@@ -3,16 +3,16 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "../models/User";
 import { IUser } from "../models/User";
 
-const JWT_KEY = process.env.JWT_KEY;
-if (!JWT_KEY) {
-  throw new Error("Missing JWT_KEY environment variable");
+const JWT_ACCESS_KEY = process.env.JWT_ACCESS_KEY;
+if (!JWT_ACCESS_KEY) {
+  throw new Error("Missing JWT_ACCESS_KEY environment variable");
 }
 
 export interface AuthRequest extends Request {
   user?: IUser;
 }
 
-export const authJwtToken = async (
+export const authAccessJwtToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -29,7 +29,7 @@ export const authJwtToken = async (
 
   // Validate the JWT
   try {
-    const decoded: JwtPayload = jwt.verify(token, JWT_KEY) as JwtPayload;
+    const decoded: JwtPayload = jwt.verify(token, JWT_ACCESS_KEY) as JwtPayload;
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(401).json({ error: "User not found" });

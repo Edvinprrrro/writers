@@ -19,11 +19,30 @@ export default function RootLayout() {
 
   return (
     <Tabs>
-      <Tabs.Screen name="index" />
-      <Tabs.Screen name="login" />
-      <Tabs.Screen name="register" />
-      <Tabs.Screen name="characters" />
-      <Tabs.Screen name="plotPoints" />
+      <Tabs.Screen
+        name="index"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
+      <Tabs.Screen
+        name="login"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
+      <Tabs.Screen
+        name="register"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
+      <Tabs.Screen
+        name="characters"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
+      <Tabs.Screen
+        name="plotPoints"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
+      <Tabs.Screen
+        name="write"
+        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
+      />
     </Tabs>
   );
 }
