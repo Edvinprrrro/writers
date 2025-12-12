@@ -3,9 +3,13 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import userRoutes from "./routes/userRoutes";
-import bookRoutes from "./routes/bookRoutes";
-import { connectDb } from "./db";
+import userRoutes from "./modules/users/user.routes";
+import bookRoutes from "./modules/books/book.routes";
+import chapterRoutes from "./modules/chapters/chapter.routes";
+import { connectDb } from "./config/db";
+import { verifyRefreshToken } from "./controllers/verifyRefreshToken";
+import { sendTokens } from "./middleware/sendAccessAndRefreshTokens";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -16,6 +20,10 @@ app.use(express.json());
 
 app.use("/user", userRoutes);
 app.use("/books", bookRoutes);
+app.use("/books/:bookId/chapters", chapterRoutes);
+app.post("/refreshTokens", verifyRefreshToken, sendTokens);
+
+app.use(errorHandler);
 
 async function startServer() {
   await connectDb();

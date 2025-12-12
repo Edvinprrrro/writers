@@ -18,31 +18,8 @@ export default function RootLayout() {
     );
 
   return (
-    <Tabs>
-      <Tabs.Screen
-        name="index"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-      <Tabs.Screen
-        name="login"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-      <Tabs.Screen
-        name="register"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-      <Tabs.Screen
-        name="characters"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-      <Tabs.Screen
-        name="plotPoints"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-      <Tabs.Screen
-        name="write"
-        options={{ tabBarStyle: { display: "none" }, headerShown: false }}
-      />
-    </Tabs>
+    <View style={{ flex: 1 }}>
+      <Tabs />
+    </View>
   );
 }

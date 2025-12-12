@@ -6,12 +6,12 @@ export const indexStyles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
   },
-  item: {
+  button: {
     width: "48%",
     backgroundColor: "#808080",
     height: "100%",
-  },
-  text: {
-    margin: "auto",
+    display: "flex",
+    justifyContent: "center",
+    alignContent: "center",
   },
 });
