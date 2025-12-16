@@ -1,15 +1,21 @@
 import { NextFunction, Response, Request } from "express";
 import Book from "./book.model.js";
-import { CreateBookDto, UpdateBookDto } from "./book.dto.js";
 import Chapter from "../chapters/chapter.model.js";
+import { createBookInput, updateBookInput } from "./book.schemas.js";
+import { addBookToDatabase } from "./book.services.js";
 
 const createBook = async (
-  req: Request<any, any, CreateBookDto>,
+  req: Request<any, any, createBookInput>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const userId = req.user.id;
-  const { title, description } = req.body;
+  try {
+    const userId = req.user.id;
+    const { title, description } = req.body;
+    const bookData = {userId, title, description}
+    const book = await addBookToDatabase(bookData)
+  } 
+  
 
   const book = await Book.create({
     title,
@@ -25,7 +31,7 @@ const createBook = async (
 };
 
 const updateBook = async (
-  req: Request<{ bookId: string }, any, UpdateBookDto>,
+  req: Request<{ bookId: string }, any, updateBookInput>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -34,7 +40,7 @@ const updateBook = async (
   const { bookId } = req.params;
 
   // Check the updates that will be made
-  const updates: Partial<UpdateBookDto> = {};
+  const updates: Partial<updateBookInput> = {};
   Object.entries(req.body).forEach(([key, value]) => {
     if (value !== undefined) (updates as any)[key] = value;
   });
