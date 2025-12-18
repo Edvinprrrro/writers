@@ -1,31 +1,30 @@
 import { NextFunction, Response, Request } from "express";
 import Book from "./book.model.js";
 import Chapter from "../chapters/chapter.model.js";
-import { createBookInput, updateBookInput } from "./book.schemas.js";
+import bookSchemas, {
+  createBookInput,
+  updateBookInput,
+} from "./book.schemas.js";
 import { addBookToDatabase } from "./book.services.js";
+import makeFileLocation from "../../globalServices/makeFileLocation.js";
 
 const createBook = async (
   req: Request<any, any, createBookInput>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
+  let book: any;
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { title, description } = req.body;
-    const bookData = {userId, title, description}
-    const book = await addBookToDatabase(bookData)
-  } 
-  
+    const bookData = { userId, title, description };
+    book = await addBookToDatabase(bookData);
+  } catch (error: any) {
+    return next(error);
+  }
+  const location = makeFileLocation("books", book._id);
 
-  const book = await Book.create({
-    title,
-    description,
-    author: userId,
-  });
-  if (!book)
-    return res
-      .status(500)
-      .json({ error: "There was an error creating the book" });
+  req.responseData = {};
 
   return res.status(201).location(`/books/${book._id}`).json(book);
 };
