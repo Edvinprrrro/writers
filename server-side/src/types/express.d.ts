@@ -6,7 +6,7 @@ declare global {
       user?: UserDto;
       responseData?: {
         status: number;
-        body: string;
+        body: object;
         location?: string;
       };
     }

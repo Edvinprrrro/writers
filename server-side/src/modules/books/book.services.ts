@@ -27,3 +27,9 @@ export async function updateBookInDatabase(
 
   return book;
 }
+
+export async function getAllBooksFromUser(userId: string) {
+  const books = await Book.find({ author: userId });
+
+  return books;
+}
