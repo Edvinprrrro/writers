@@ -2,7 +2,12 @@ import { NextFunction, Response, Request } from "express";
 import Book from "./book.model.js";
 import Chapter from "../chapters/chapter.model.js";
 import { createBookInput, updateBookInput } from "./book.schemas.js";
-import { addBookToDatabase, updateBookInDatabase } from "./book.services.js";
+import {
+  addBookToDatabase,
+  deleteBookAndChapters,
+  getAllBooksByIdFromDB,
+  updateBookInDatabase,
+} from "./book.services.js";
 import getFileLocation from "../../globalServices/getFileLocation.js";
 import getUpdates from "../../globalServices/getUpdates.js";
 import { getAllBooksFromUser } from "./book.services.js";
@@ -70,11 +75,16 @@ const getBookById = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { bookId } = req.params;
+  let book = {};
+  try {
+    const { bookId } = req.params;
+    book = getAllBooksByIdFromDB(bookId);
+  } catch (error: any) {
+    next(error);
+  }
 
-  const book = await Book.findById(bookId);
-  // TO DO: not cheking if the book exists
-  return res.status(200).json(book);
+  req.responseData = { body: book, status: 200 };
+  next();
 };
 
 const deleteBook = async (
@@ -82,14 +92,15 @@ const deleteBook = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { bookId } = req.params;
+  try {
+    const { bookId } = req.params;
+    await deleteBookAndChapters(bookId);
+  } catch (error: any) {
+    next(error);
+  }
 
-  const book = await Book.findByIdAndDelete(bookId);
-  const chapter = await Chapter.deleteMany({ book: bookId });
-
-  return res
-    .status(200)
-    .json({ message: "Book and all of it's chapters succesfully deleted" });
+  req.responseData = { body: { message: "Succesfully deleted" }, status: 200 };
+  next();
 };
 
 export default {
