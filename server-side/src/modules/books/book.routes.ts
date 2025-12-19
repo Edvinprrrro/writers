@@ -4,6 +4,7 @@ import sanitizeRequest from "../../middleware/sanitizeRequest.js";
 import { authenticateAccessToken } from "../../middleware/authenticateAccessToken.js";
 import { authenticateBookIsFromThisUser } from "../../middleware/authenticateBookIsFromThisUser.js";
 import bookSchemas from "./book.schemas.js";
+import sendScucesfullResponse from "../../middleware/sendSuccesfullResponse.js";
 
 const router = express.Router();
 
@@ -14,14 +15,16 @@ router.get(
   authenticateAccessToken,
   sanitizeRequest(bookSchemas.getBookByIdRequestSchema),
   authenticateBookIsFromThisUser,
-  bookController.getBookById
+  bookController.getBookById,
+  sendScucesfullResponse
 );
 
 router.post(
   "/",
   authenticateAccessToken,
   sanitizeRequest(bookSchemas.createBookRequestSchema),
-  bookController.createBook
+  bookController.createBook,
+  sendScucesfullResponse
 );
 
 router.put(
@@ -29,7 +32,8 @@ router.put(
   authenticateAccessToken,
   sanitizeRequest(bookSchemas.updateBookRequestSchema),
   authenticateBookIsFromThisUser,
-  bookController.updateBook
+  bookController.updateBook,
+  sendScucesfullResponse
 );
 
 router.delete(
@@ -37,7 +41,8 @@ router.delete(
   authenticateAccessToken,
   sanitizeRequest(bookSchemas.deleteBookRequestSchema),
   authenticateBookIsFromThisUser,
-  bookController.deleteBook
+  bookController.deleteBook,
+  sendScucesfullResponse
 );
 
 export default router;

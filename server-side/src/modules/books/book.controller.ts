@@ -24,7 +24,7 @@ const createBook = async (
   }
   const location = getFileLocation(req.originalUrl, book._id);
 
-  req.responseData = { location, status: 201, jsonReturned: book };
+  req.responseData = { location, status: 201, body: book };
   next();
 };
 
