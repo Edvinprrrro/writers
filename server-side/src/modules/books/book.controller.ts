@@ -23,8 +23,8 @@ const createBook = async (
     return next(error);
   }
   const location = getFileLocation(req.originalUrl, book._id);
-
   req.responseData = { location, status: 201, body: book };
+
   next();
 };
 
