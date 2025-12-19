@@ -6,7 +6,7 @@ import bookSchemas, {
   updateBookInput,
 } from "./book.schemas.js";
 import { addBookToDatabase } from "./book.services.js";
-import makeFileLocation from "../../globalServices/makeFileLocation.js";
+import getFileLocation from "../../globalServices/getFileLocation.js";
 
 const createBook = async (
   req: Request<any, any, createBookInput>,
@@ -22,11 +22,10 @@ const createBook = async (
   } catch (error: any) {
     return next(error);
   }
-  const location = makeFileLocation("books", book._id);
+  const location = getFileLocation(req.originalUrl, book._id);
 
-  req.responseData = {};
-
-  return res.status(201).location(`/books/${book._id}`).json(book);
+  req.responseData = { location, status: 201, jsonReturned: book };
+  next();
 };
 
 const updateBook = async (
