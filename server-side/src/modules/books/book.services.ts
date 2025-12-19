@@ -1,4 +1,4 @@
-import { createBookInput } from "./book.schemas";
+import { createBookInput, updateBookInput } from "./book.schemas";
 import Book from "./book.model";
 
 interface addBookData extends createBookInput {
@@ -15,6 +15,15 @@ export async function addBookToDatabase({
     description,
     author: userId,
   });
+
+  return book;
+}
+
+export async function updateBookInDatabase(
+  bookId: string,
+  updates: updateBookInput
+) {
+  const book = await Book.findByIdAndUpdate(bookId, updates);
 
   return book;
 }
