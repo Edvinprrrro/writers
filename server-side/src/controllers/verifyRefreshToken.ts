@@ -1,5 +1,4 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "../middleware/authenticateAccessToken.js";
+import { Response, NextFunction, Request } from "express";
 import User from "../modules/users/user.model.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import RefreshToken from "../models/RefreshToken.js";
@@ -9,7 +8,7 @@ if (!JWT_REFRESH_KEY)
   throw new Error("Missing JWT_REFRESH_KE enviroment variable");
 
 export const verifyRefreshToken = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -44,7 +43,11 @@ export const verifyRefreshToken = async (
       return res.status(403).json({ error: "Invalid token" });
     }
 
-    req.user = user;
+    req.user = {
+      username: user.username,
+      email: user.email,
+      id: user._id as string,
+    };
     await RefreshToken.findByIdAndUpdate(dbToken._id, { revoked: true });
     console.log("Going next");
     next();

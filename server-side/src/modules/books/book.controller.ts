@@ -1,7 +1,10 @@
 import { NextFunction, Response, Request } from "express";
-import Book from "./book.model.js";
-import Chapter from "../chapters/chapter.model.js";
-import { createBookInput, updateBookInput } from "./book.schemas.js";
+import {
+  CreateBookInput,
+  UpdateBookInput,
+  DeleteBookInput,
+  GetBookByIdInput,
+} from "./book.inputs.js";
 import {
   addBookToDatabase,
   deleteBookAndChapters,
@@ -13,7 +16,7 @@ import getUpdates from "../../globalServices/getUpdates.js";
 import { getAllBooksFromUser } from "./book.services.js";
 
 const createBook = async (
-  req: Request<any, any, createBookInput>,
+  req: Request<any, any, CreateBookInput["body"]>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -23,17 +26,18 @@ const createBook = async (
     const { title, description } = req.body;
     const bookData = { userId, title, description };
     book = await addBookToDatabase(bookData);
+
+    const location = getFileLocation(req.originalUrl, book._id);
+    req.responseData = { location, status: 201, body: book };
+
+    next();
   } catch (error: any) {
     return next(error);
   }
-  const location = getFileLocation(req.originalUrl, book._id);
-  req.responseData = { location, status: 201, body: book };
-
-  next();
 };
 
 const updateBook = async (
-  req: Request<{ bookId: string }, any, updateBookInput>,
+  req: Request<UpdateBookInput["params"], any, UpdateBookInput["body"]>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -41,16 +45,15 @@ const updateBook = async (
   try {
     const { bookId } = req.params;
     const updates = getUpdates(req.body);
-
     book = updateBookInDatabase(bookId, updates);
+
+    const location = getFileLocation(req.originalUrl, book._id);
+    req.responseData = { location, status: 201, body: book };
+
+    next();
   } catch (error: any) {
     return next(error);
   }
-
-  const location = getFileLocation(req.originalUrl, book._id);
-  req.responseData = { location, status: 201, body: book };
-
-  next();
 };
 
 const getAllBooks = async (
@@ -62,16 +65,16 @@ const getAllBooks = async (
   try {
     const userId = req.user!.id;
     books = getAllBooksFromUser(userId);
+
+    req.responseData = { body: books, status: 200 };
+    next();
   } catch (error: any) {
     next(error);
   }
-
-  req.responseData = { body: books, status: 200 };
-  next();
 };
 
 const getBookById = async (
-  req: Request<{ bookId: string }, any, any>,
+  req: Request<GetBookByIdInput["params"], any, any>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -79,28 +82,31 @@ const getBookById = async (
   try {
     const { bookId } = req.params;
     book = getAllBooksByIdFromDB(bookId);
+
+    req.responseData = { body: book, status: 200 };
+    next();
   } catch (error: any) {
     next(error);
   }
-
-  req.responseData = { body: book, status: 200 };
-  next();
 };
 
 const deleteBook = async (
-  req: Request<{ bookId: string }, any, any>,
+  req: Request<DeleteBookInput["params"], any, any>,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
   try {
     const { bookId } = req.params;
     await deleteBookAndChapters(bookId);
+
+    req.responseData = {
+      body: { message: "Succesfully deleted" },
+      status: 200,
+    };
+    next();
   } catch (error: any) {
     next(error);
   }
-
-  req.responseData = { body: { message: "Succesfully deleted" }, status: 200 };
-  next();
 };
 
 export default {

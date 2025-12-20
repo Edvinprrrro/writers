@@ -1,5 +1,4 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "./authenticateAccessToken.js";
+import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import RefreshToken from "../models/RefreshToken.js";
 
@@ -12,7 +11,7 @@ if (!JWT_REFRESH_KEY)
   throw new Error("Missing JWT_REFRESH_KE enviroment variable");
 
 export const sendTokens = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
@@ -32,7 +31,7 @@ export const sendTokens = async (
   await RefreshToken.create({
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     token: refreshToken,
-    user: req.user!._id,
+    user: req.user!.id,
   });
 
   return res.status(200).json({

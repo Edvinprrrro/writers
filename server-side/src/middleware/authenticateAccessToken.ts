@@ -30,7 +30,11 @@ export const authenticateAccessToken = async (
       return res.status(401).json({ error: "User not found" });
     }
 
-    req.user = user;
+    req.user = {
+      username: user.username,
+      email: user.email,
+      id: user._id as string,
+    };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid Token" });

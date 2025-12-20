@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-export default function sendScucesfullResponse(
+export function sendScucesfullResponse(
   req: Request,
   res: Response,
   next: NextFunction
