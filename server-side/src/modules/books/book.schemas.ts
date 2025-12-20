@@ -32,5 +32,3 @@ export const getBookByIdSchema = bookIdParamsSchema;
 export const deleteBookSchema = bookIdParamsSchema;
 export const createBookSchema = createBookBodySchema;
 export const updateBookSchema = bookIdParamsSchema.merge(updateBookBodySchema);
-
-e;
