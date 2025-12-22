@@ -3,40 +3,47 @@ import { authenticateAccessToken } from "../../middleware/authenticateAccessToke
 import chapterController from "./chapter.controller.js";
 import { authenticateBookIsFromThisUser } from "../../middleware/authenticateBookIsFromThisUser.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
+import {
+  createChapterSchema,
+  deleteChapterSchema,
+  getAllChaptersSchema,
+  getChapterByIdSchema,
+  updateChapterSchema,
+} from "./chapter.schemas.js";
 
 const router = express.Router();
 
 router.get(
   "/",
   authenticateAccessToken,
-  validateRequest,
+  validateRequest(getAllChaptersSchema),
   chapterController.getAllChapters
 );
 router.get(
   "/:chapterId",
   authenticateAccessToken,
-  validateRequest,
+  validateRequest(getChapterByIdSchema),
   authenticateBookIsFromThisUser,
   chapterController.getChapterById
 );
 router.post(
   "/",
   authenticateAccessToken,
-  validateRequest,
+  validateRequest(createChapterSchema),
   authenticateBookIsFromThisUser,
   chapterController.createChapter
 );
 router.put(
   "/:chapterId",
   authenticateAccessToken,
-  validateRequest,
+  validateRequest(updateChapterSchema),
   authenticateBookIsFromThisUser,
   chapterController.updateChapter
 );
 router.delete(
   "/:chapterId",
   authenticateAccessToken,
-  validateRequest,
+  validateRequest(deleteChapterSchema),
   authenticateBookIsFromThisUser,
   chapterController.deleteChapter
 );
