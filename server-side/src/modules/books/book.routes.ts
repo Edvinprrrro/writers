@@ -13,41 +13,33 @@ import {
 
 const router = express.Router();
 
+router.use(authenticateAccessToken);
+
 router.get("/", authenticateAccessToken, bookController.getAllBooks);
 
 router.get(
   "/:bookId",
-  authenticateAccessToken,
   validateRequest(getBookByIdSchema),
   authenticateBookIsFromThisUser,
-  bookController.getBookById,
-  sendScucesfullResponse
+  bookController.getBookById
 );
 
-router.post(
-  "/",
-  authenticateAccessToken,
-  validateRequest(createBookSchema),
-  bookController.createBook,
-  sendScucesfullResponse
-);
+router.post("/", validateRequest(createBookSchema), bookController.createBook);
 
 router.put(
   "/:bookId",
-  authenticateAccessToken,
   validateRequest(updateBookSchema),
   authenticateBookIsFromThisUser,
-  bookController.updateBook,
-  sendScucesfullResponse
+  bookController.updateBook
 );
 
 router.delete(
   "/:bookId",
-  authenticateAccessToken,
   validateRequest(deleteBookSchema),
   authenticateBookIsFromThisUser,
-  bookController.deleteBook,
-  sendScucesfullResponse
+  bookController.deleteBook
 );
+
+router.use(sendScucesfullResponse);
 
 export default router;
