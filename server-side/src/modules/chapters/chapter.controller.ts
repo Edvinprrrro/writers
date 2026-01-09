@@ -1,119 +1,92 @@
 import { NextFunction, Response, Request } from "express";
 import Chapter from "./chapter.model.js";
-import { CreateChapterDto, UpdateChapterDto } from "./chapter.dto.js";
+import { NotFoundError } from "../../errors/notFoundError.js";
+import getUpdates from "../../globalServices/getUpdates.js";
+import { HttpError } from "../../errors/httpError.js";
 
-const createChapter = async (
-  req: Request<{ bookId: string }, any, CreateChapterDto>,
+export const createChapter = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { bookId } = req.params;
-  const { content, title, order } = req.body;
-  if (!content || !title || !order)
-    return res
-      .status(400)
-      .json({ error: "The body does not have all required fields" });
+  try {
+    const chapter = new Chapter();
+    chapter.title = req.body.title;
+    chapter.content = req.body.content;
+    chapter.order = req.body.order;
+    chapter.book = req.params.chapterId;
+    await chapter.save();
 
-  const chapter = await Chapter.create({
-    content,
-    title,
-    order,
-    book: bookId,
-  });
-  if (!chapter)
-    return res
-      .status(500)
-      .json({ error: "Failed to add the chapter to the database" });
-
-  return res
-    .status(201)
-    .location(`books/${bookId}/chapters/${chapter._id}`)
-    .json({ chapter });
+    const location = req.originalUrl + chapter._id;
+    return res.status(200).location(location).json(chapter);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
-const getAllChapters = async (
-  req: Request<{ bookId: string }, any, any>,
+export const getAllChapters = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { bookId } = req.params;
+  try {
+    const { bookId } = req.params;
+    const chapters = await Chapter.find({ book: bookId });
+    if (!chapters) throw new NotFoundError();
 
-  const chapters = await Chapter.find({ book: bookId });
-
-  return res.status(200).json({ chapters });
+    return res.status(200).json(chapters);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
-const getChapterById = async (
-  req: Request<{ bookId: string; chapterId: string }, any, any>,
+export const getChapterById = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { chapterId } = req.params;
-  if (!chapterId)
-    return res.status(400).json({ error: "No chapter id provided" });
+  try {
+    const { chapterId } = req.params;
+    const chapter = await Chapter.findById(chapterId);
+    if (!chapter) throw new NotFoundError();
 
-  const chapter = await Chapter.findById(chapterId);
-
-  if (!chapter) return res.status(404).json({ error: "Chapter not found" });
-
-  return res.status(200).json(chapter);
+    return res.status(200).json(chapter);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
-const updateChapter = async (
-  req: Request<{ bookId: string; chapterId: string }, any, UpdateChapterDto>,
+export const updateChapter = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { chapterId, bookId } = req.params;
-  if (!chapterId)
-    return res.status(400).json({ error: "No chapter id provided" });
+  try {
+    const { chapterId } = req.params;
+    const updates = getUpdates(req.body);
+    if (!updates) throw new HttpError(400, "No updates were sent");
+    const chapter = await Chapter.findByIdAndUpdate(chapterId, updates);
+    if (!chapter) throw new NotFoundError();
 
-  const { title, order, content } = req.body;
-  if (!title && !order && !content)
-    return res
-      .status(400)
-      .json({ error: "Not a single change was sent in the request" });
-
-  // Check updates to be made
-  const updates: UpdateChapterDto = {};
-  Object.entries(req.body).forEach(([key, value]) => {
-    if (value !== undefined) (updates as any)[key] = value;
-  });
-
-  const chapter = await Chapter.findByIdAndUpdate(chapterId, updates);
-  if (!chapter)
-    return res
-      .status(500)
-      .json({ error: "An error ocurred when updating the chapter" });
-
-  return res
-    .status(200)
-    .location(`books/${bookId}/chapters/${chapter._id}`)
-    .json(chapter);
+    const location = req.originalUrl + chapter._id;
+    return res.status(200).location(location).json(chapter);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
-const deleteChapter = async (
-  req: Request<{ chapterId: string }, any, any>,
+export const deleteChapter = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { chapterId } = req.params;
-  if (!chapterId)
-    return res.status(400).json({ error: "No chapter id provided" });
+  try {
+    const { chapterId } = req.params;
+    const chapter = await Chapter.findByIdAndDelete(chapterId);
+    if (chapter) throw new NotFoundError();
 
-  const chapter = await Chapter.findByIdAndDelete(chapterId);
-  if (!chapter)
-    return res
-      .status(500)
-      .json({ error: "An error ocurred deleting the chapter" });
-
-  return res.status(200).json(chapter);
-};
-
-export default {
-  createChapter,
-  deleteChapter,
-  getAllChapters,
-  updateChapter,
-  getChapterById,
+    return res.status(200).json(chapter);
+  } catch (error: any) {
+    return next(error);
+  }
 };
