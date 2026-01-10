@@ -1,45 +1,48 @@
 import express from "express";
-import bookController from "./book.controller.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import { authenticateAccessToken } from "../../middleware/authenticateAccessToken.js";
 import { authenticateBookIsFromThisUser } from "../../middleware/authenticateBookIsFromThisUser.js";
-import { sendScucesfullResponse } from "../../middleware/sendSuccesfullResponse.js";
 import {
   createBookSchema,
   deleteBookSchema,
   getBookByIdSchema,
   updateBookSchema,
 } from "./book.schemas.js";
+import {
+  getAllBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+  getBookById,
+} from "./book.controller.js";
 
 const router = express.Router();
 
 router.use(authenticateAccessToken);
 
-router.get("/", authenticateAccessToken, bookController.getAllBooks);
+router.get("/", getAllBooks);
 
 router.get(
   "/:bookId",
   validateRequest(getBookByIdSchema),
   authenticateBookIsFromThisUser,
-  bookController.getBookById
+  getBookById
 );
 
-router.post("/", validateRequest(createBookSchema), bookController.createBook);
+router.post("/", validateRequest(createBookSchema), createBook);
 
 router.put(
   "/:bookId",
   validateRequest(updateBookSchema),
   authenticateBookIsFromThisUser,
-  bookController.updateBook
+  updateBook
 );
 
 router.delete(
   "/:bookId",
   validateRequest(deleteBookSchema),
   authenticateBookIsFromThisUser,
-  bookController.deleteBook
+  deleteBook
 );
-
-router.use(sendScucesfullResponse);
 
 export default router;

@@ -3,6 +3,7 @@ import getUpdates from "../../globalServices/getUpdates.js";
 import Book from "./book.model.js";
 import { NotFoundError } from "../../errors/notFoundError.js";
 import { deleteBookAndChapters } from "./book.services.js";
+import { HttpError } from "../../errors/httpError.js";
 
 export const createBook = async (
   req: Request,
@@ -31,6 +32,7 @@ export const updateBook = async (
   try {
     const { bookId } = req.params;
     const updates = getUpdates(req.body);
+    if (!updates) throw new HttpError(400, "No updates were sent");
     const book = await Book.findByIdAndUpdate(bookId, updates);
     if (!book) throw new NotFoundError();
 
@@ -53,7 +55,7 @@ export const getAllBooks = async (
 
     return res.status(200).json(books);
   } catch (error: any) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -69,7 +71,7 @@ export const getBookById = async (
 
     return res.status(200).json(book);
   } catch (error: any) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -84,6 +86,6 @@ export const deleteBook = async (
 
     return res.status(200).json({ message: "Succesfully deleted" });
   } catch (error: any) {
-    next(error);
+    return next(error);
   }
 };

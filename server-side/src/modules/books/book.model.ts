@@ -1,5 +1,10 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
-import { Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+
+interface Book extends mongoose.Document {
+  title: string;
+  description: string;
+  author: string;
+}
 
 const bookSchema = new Schema(
   {
@@ -19,9 +24,4 @@ const bookSchema = new Schema(
   { timestamps: true }
 );
 
-// Get the book interface
-export type IBook = Document & InferSchemaType<typeof bookSchema>;
-
-const Book = mongoose.model<IBook>("Book", bookSchema);
-
-export default Book;
+export default mongoose.model<Book>("Book", bookSchema);
