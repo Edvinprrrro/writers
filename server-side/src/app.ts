@@ -6,6 +6,8 @@ import cors from "cors";
 import userRoutes from "./modules/users/user.routes";
 import bookRoutes from "./modules/books/book.routes";
 import chapterRoutes from "./modules/chapters/chapter.routes";
+import characterRoutes from "./modules/characters/character.routes";
+import plotPointRoutes from "./modules/plotPoints/plotPoint.routes";
 import { connectDb } from "./config/db";
 import { verifyRefreshToken } from "./controllers/verifyRefreshToken";
 import { sendTokens } from "./middleware/sendAccessAndRefreshTokens";
@@ -17,10 +19,11 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-
 app.use("/user", userRoutes);
 app.use("/books", bookRoutes);
 app.use("/books/:bookId/chapters", chapterRoutes);
+app.use("/books/:bookId/characters", characterRoutes);
+app.use("/books/:bookId/plotPoints", plotPointRoutes);
 app.post("/refreshTokens", verifyRefreshToken, sendTokens);
 
 app.use(errorHandler);
