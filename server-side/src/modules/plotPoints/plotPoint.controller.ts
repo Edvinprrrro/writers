@@ -1,112 +1,95 @@
 import { Response, NextFunction, Request } from "express";
 import PlotPoint from "./plotPoint.model.js";
-import { CreatePlotPointDto, UpdatePlotPointDto } from "./plotPoint.dto.js";
+import { NotFoundError } from "../../errors/notFoundError.js";
+import getUpdates from "../../globalServices/getUpdates.js";
+import { HttpError } from "../../errors/httpError.js";
 
-export const getPlotPoints = async (
-  req: Request<{ bookId: string }, any, any>,
+export const getAllPlotPoints = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { bookId } = req.params;
+  try {
+    const { bookId } = req.params;
+    const plotPoints = await PlotPoint.find({ book: bookId }).sort({
+      order: 1,
+    });
+    if (!plotPoints) throw new NotFoundError();
 
-  const plotPoints = await PlotPoint.find({ book: bookId }).sort({ order: 1 });
-  return res.status(200).json(plotPoints);
+    return res.status(200).json(plotPoints);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
-export const getPlotPoint = async (
-  req: Request<{ bookId: string; plotPointId: string }, any, any>,
+export const getPlotPointById = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { plotPointId } = req.params;
-  if (!plotPointId)
-    return res.status(400).json({ error: "Plot point id was not provided" });
+  try {
+    const { plotPointId } = req.params;
+    const plotPoint = await PlotPoint.findById(plotPointId);
+    if (!plotPoint) throw new NotFoundError();
 
-  const plotPoint = await PlotPoint.findById(plotPointId);
-  if (!plotPoint)
-    return res.status(404).json({ error: "Plot point not found" });
-
-  return res.status(200).json(plotPoint);
+    return res.status(200).json(200);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
 export const createPlotPoint = async (
-  req: Request<{ bookId: string }, any, CreatePlotPointDto>,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { title, content, order } = req.body;
-  if (!title || !content)
-    return res.status(400).json({ error: "Required fields not sent" });
+  try {
+    const plotPoint = new PlotPoint();
+    plotPoint.title = req.body.title;
+    plotPoint.content = req.body.content;
+    plotPoint.order = req.body.order;
+    plotPoint.book = req.params.bookId;
+    await plotPoint.save();
 
-  const { bookId } = req.params;
-
-  const plotPoint = await PlotPoint.create({
-    title,
-    content,
-    order,
-    book: bookId,
-  });
-  if (!plotPoint)
-    return res.status(500).json({
-      error:
-        "An  error ocurred when inserting the plot point into the database",
-    });
-
-  return res
-    .status(200)
-    .location(`books/${bookId}/plotpoints/${plotPoint._id}`)
-    .json(plotPoint);
+    const location = req.originalUrl + plotPoint._id;
+    return res.status(201).location(location).json(plotPoint);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
 export const updatePlotPoint = async (
-  req: Request<
-    { bookId: string; plotPointId: string },
-    any,
-    UpdatePlotPointDto
-  >,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { plotPointId, bookId } = req.params;
-  if (!plotPointId)
-    return res.status(400).json({ error: "Plot point id was not provided" });
+  try {
+    const { plotPointId } = req.params;
+    const updates = getUpdates(req.body);
+    if (!updates) throw new HttpError(400, "No updates were sent");
 
-  const { title, content, order } = req.body;
-  if (!title && !content && !order)
-    return res
-      .status(400)
-      .json({ error: "Not a single change was sent to make" });
+    const plotPoint = await PlotPoint.findByIdAndUpdate(plotPointId, updates);
+    if (!plotPoint) throw new NotFoundError();
 
-  // Check updates to be made
-  const updates: UpdatePlotPointDto = {};
-  Object.entries(req.body).forEach(([key, value]) => {
-    if (value != undefined) (updates as any)[key] = value;
-  });
-
-  const plotPoint = await PlotPoint.findByIdAndUpdate(plotPointId);
-  if (!plotPoint)
-    return res
-      .status(500)
-      .json({ error: "An error ocurred whtn trying to update the plot point" });
-
-  return res
-    .status(200)
-    .location(`books/${bookId}/plotpoints/${plotPoint._id}`)
-    .json(plotPoint);
+    const location = req.originalUrl + plotPoint._id;
+    return res.status(200).location(location).json(200);
+  } catch (error: any) {
+    return next(error);
+  }
 };
 
 export const deletePlotPoint = async (
-  req: Request<{ plotPointId: string }, any, any>,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { plotPointId } = req.params;
-  if (!plotPointId)
-    return res.status(400).json({ error: "Plot point id was not provided" });
+  try {
+    const { plotPointId } = req.params;
+    const plotPoint = await PlotPoint.findByIdAndDelete(plotPointId);
+    if (!plotPoint) throw new NotFoundError();
 
-  const plotPoint = await PlotPoint.findByIdAndDelete(plotPointId);
-  if (!plotPoint)
-    return res.status(404).json({ error: "Plot point not found" });
-
-  return res.status(200).json(plotPoint);
+    return res.status(200).json(plotPoint);
+  } catch (error: any) {
+    return next(error);
+  }
 };

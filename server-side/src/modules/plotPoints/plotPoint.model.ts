@@ -1,5 +1,11 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
-import { Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+
+interface PlotPoint extends mongoose.Document {
+  title: string;
+  content: string;
+  order: number;
+  book: string;
+}
 
 const plotPointSchema = new Schema(
   {
@@ -23,8 +29,4 @@ const plotPointSchema = new Schema(
   { timestamps: true }
 );
 
-export type IPlotPoint = Document & InferSchemaType<typeof plotPointSchema>;
-
-const PlotPoint = mongoose.model<IPlotPoint>("PlotPoint", plotPointSchema);
-
-export default PlotPoint;
+export default mongoose.model<PlotPoint>("PlotPoint", plotPointSchema);
