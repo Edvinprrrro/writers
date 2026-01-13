@@ -10,9 +10,9 @@ export function validateRequest(schema: ZodSchema) {
         query: req.query,
       });
 
-      next();
+      return next();
     } catch (error: any) {
-      return error;
+      return next(error);
     }
   };
 }
