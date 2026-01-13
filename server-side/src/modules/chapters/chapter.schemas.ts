@@ -1,11 +1,23 @@
 import * as z from "zod";
-import { bookIdParamsSchema } from "../books/book.schemas";
 
-/* =========================
-   Atomic schemas 
-   ========================= */
+export const getChapterByIdSchema = z.object({
+  params: z.object({
+    chapterId: z.string().min(1),
+    boookId: z.string().min(1),
+  }),
+});
 
-const createChapterBodySchema = z.object({
+export const deleteChapterSchema = z.object({
+  params: z.object({
+    chapterId: z.string().min(1),
+    boookId: z.string().min(1),
+  }),
+});
+
+export const createChapterSchema = z.object({
+  params: z.object({
+    boookId: z.string().min(1),
+  }),
   body: z.object({
     title: z.string().min(1),
     content: z.string().min(1),
@@ -13,30 +25,20 @@ const createChapterBodySchema = z.object({
   }),
 });
 
-const updateChapterBodySchema = z.object({
+export const getAllChaptersSchema = z.object({
+  pparams: z.object({
+    boookId: z.string().min(1),
+  }),
+});
+
+export const updateChapterSchema = z.object({
+  params: z.object({
+    chapterId: z.string().min(1),
+    boookId: z.string().min(1),
+  }),
   body: z.object({
     title: z.string().optional(),
     content: z.string().optional(),
     order: z.number().optional(),
   }),
 });
-
-const chapterIdParamsSchema = z.object({
-  params: z.object({
-    chapterId: z.string().min(1),
-    boookId: z.string().min(1),
-  }),
-});
-
-/* =========================
-   Composed request schemas
-   ========================= */
-
-export const getChapterByIdSchema = chapterIdParamsSchema;
-export const deleteChapterSchema = chapterIdParamsSchema;
-export const createChapterSchema =
-  createChapterBodySchema.merge(bookIdParamsSchema);
-export const getAllChaptersSchema = bookIdParamsSchema;
-export const updateChapterSchema = chapterIdParamsSchema.merge(
-  updateChapterBodySchema
-);

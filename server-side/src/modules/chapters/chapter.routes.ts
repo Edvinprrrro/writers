@@ -1,6 +1,5 @@
 import express from "express";
 import { authenticateAccessToken } from "../../middleware/authenticateAccessToken.js";
-import chapterController from "./chapter.controller.js";
 import { authenticateBookIsFromThisUser } from "../../middleware/authenticateBookIsFromThisUser.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import {
@@ -10,42 +9,44 @@ import {
   getChapterByIdSchema,
   updateChapterSchema,
 } from "./chapter.schemas.js";
+import {
+  getAllChapters,
+  getChapterById,
+  updateChapter,
+  createChapter,
+  deleteChapter,
+} from "./chapter.controller.js";
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.get(
-  "/",
-  authenticateAccessToken,
-  validateRequest(getAllChaptersSchema),
-  chapterController.getAllChapters
-);
+router.use(authenticateAccessToken);
+
+router.get("/", validateRequest(getAllChaptersSchema), getAllChapters);
+
 router.get(
   "/:chapterId",
-  authenticateAccessToken,
   validateRequest(getChapterByIdSchema),
   authenticateBookIsFromThisUser,
-  chapterController.getChapterById
+  getChapterById
 );
 router.post(
   "/",
-  authenticateAccessToken,
   validateRequest(createChapterSchema),
   authenticateBookIsFromThisUser,
-  chapterController.createChapter
+  createChapter
 );
+
 router.put(
   "/:chapterId",
-  authenticateAccessToken,
   validateRequest(updateChapterSchema),
   authenticateBookIsFromThisUser,
-  chapterController.updateChapter
+  updateChapter
 );
 router.delete(
   "/:chapterId",
-  authenticateAccessToken,
   validateRequest(deleteChapterSchema),
   authenticateBookIsFromThisUser,
-  chapterController.deleteChapter
+  deleteChapter
 );
 
 export default router;
