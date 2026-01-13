@@ -53,11 +53,11 @@ class UserClass {
 
   public generateJwt(): { token: string; expiry: Date } {
     const expiry = new Date();
-    expiry.setHours(expiry.getHours() + 2);
+    expiry.setHours(expiry.getHours() + 200);
 
     const token = jwt.sign(
       {
-        _is: this._id,
+        id: this._id,
         email: this.email,
         exp: Math.round(expiry.getTime() / 1000),
       },

@@ -3,6 +3,7 @@ import User from "./user.model";
 import Chapter from "../chapters/chapter.model";
 import Character from "../characters/character.model";
 import PlotPoint from "../plotPoints/plotPoint.model";
+import Book from "../books/book.model";
 import { HttpError } from "../../errors/httpError";
 import { NotFoundError } from "../../errors/notFoundError";
 
@@ -14,8 +15,8 @@ export const registerUser = async (
   try {
     const { password, repeatedPassword, email, username } = req.body;
 
-    if (password === repeatedPassword)
-      throw new HttpError(400, "Passwords do not match");
+    if (password !== repeatedPassword)
+      throw new HttpError(400, "Passwords dont' match");
 
     const existingEmail = await User.findOne({ email });
     if (existingEmail) throw new HttpError(400, "Email already being used");
@@ -32,7 +33,7 @@ export const registerUser = async (
     const tokenSignature = user.generateJwt();
     return res.status(201).json(tokenSignature);
   } catch (error: any) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -52,7 +53,7 @@ export const loginUser = async (
     const tokenSignature = user.generateJwt();
     return res.status(200).json(tokenSignature);
   } catch (error: any) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -64,9 +65,7 @@ export const deleteUser = async (
   try {
     const id = req.user!._id;
     const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!user) throw new NotFoundError();
 
     const books = await Book.find({ author: id });
     const bookIds = books.map((book) => book._id);
@@ -81,7 +80,7 @@ export const deleteUser = async (
     await User.findByIdAndDelete(id);
 
     return res.status(200).json(user);
-  } catch (err) {
-    return res.status(401).json({ error: err });
+  } catch (error: any) {
+    return next(error);
   }
 };
