@@ -2,6 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import Character from "./character.model.js";
 import { NotFoundError } from "../../errors/notFoundError.js";
 import { HttpError } from "../../errors/httpError.js";
+import getUpdates from "../../globalServices/getUpdates.js";
 
 export const getAllCharacters = async (
   req: Request,
@@ -62,7 +63,7 @@ export const updateCharacter = async (
 ): Promise<any> => {
   try {
     const { characterId } = req.params;
-    const updates = req.body;
+    const updates = getUpdates(req.body);
     if (!updates) throw new HttpError(400, "No updates were sent");
 
     const character = await Character.findByIdAndUpdate(characterId, updates);

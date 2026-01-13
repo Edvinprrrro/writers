@@ -1,5 +1,11 @@
-import mongoose, { Schema, InferSchemaType } from "mongoose";
-import { Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+
+interface Character extends mongoose.Document {
+  name: string;
+  description: string;
+  narrativeRole: string;
+  books: string[];
+}
 
 const characterSchema = new Schema(
   {
@@ -23,8 +29,4 @@ const characterSchema = new Schema(
   { timestamps: true }
 );
 
-export type ICharacter = Document & InferSchemaType<typeof characterSchema>;
-
-const Character = mongoose.model<ICharacter>("Character", characterSchema);
-
-export default Character;
+export default mongoose.model<Character>("Character", characterSchema);
