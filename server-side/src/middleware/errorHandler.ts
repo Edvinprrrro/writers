@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpError } from "../errors/httpError";
+import { ZodError } from "zod";
 
 export function errorHandler(
   err: HttpError | Error,
@@ -7,9 +8,10 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): any {
-  const status = err instanceof HttpError ? err.statusCode : 500;
+  if (err instanceof ZodError) {
+    return res.status(400).json({ message: "Bad request" });
+  } else if (err instanceof HttpError)
+    return res.status(err.statusCode).json({ message: err.message });
 
-  return res
-    .status(status)
-    .json({ message: err.message || "Something went wrong" });
+  return res.status(500).json({ message: "Something went wrong" });
 }
